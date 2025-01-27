@@ -1,0 +1,155 @@
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Заметки',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: NoteList(),
+    );
+  }
+}
+
+class NoteList extends StatefulWidget {
+  @override
+  _NoteListState createState() => _NoteListState();
+}
+
+class _NoteListState extends State<NoteList> {
+  List<String> _notes = [];
+  final TextEditingController _textController = TextEditingController();
+  late SharedPreferences _prefs;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNotes();
+  }
+
+  Future<void> _loadNotes() async {
+    _prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _notes = _prefs.getStringList('notes') ?? [];
+    });
+  }
+
+  Future<void> _saveNotes() async {
+    await _prefs.setStringList('notes', _notes);
+  }
+
+  void _addNote() {
+    if (_textController.text.isNotEmpty) {
+      setState(() {
+        _notes.add(_textController.text);
+        _textController.clear();
+        _saveNotes();
+      });
+    }
+  }
+
+  void _deleteNote(int index) {
+    setState(() {
+      _notes.removeAt(index);
+      _saveNotes();
+    });
+  }
+
+  void _editNote(int index) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        final TextEditingController _editController =
+            TextEditingController(text: _notes[index]);
+        return AlertDialog(
+          title: Text('Редактировать заметку'),
+          content: TextField(
+            controller: _editController,
+            decoration: InputDecoration(hintText: 'Введите текст'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Отмена'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _notes[index] = _editController.text;
+                  _saveNotes();
+                });
+                Navigator.of(context).pop();
+              },
+              child: Text('Сохранить'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Заметки'),
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _textController,
+                    decoration: InputDecoration(hintText: 'Введите заметку'),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.save),
+                  onPressed: _addNote,
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _notes.length,
+              itemBuilder: (context, index) {
+                return Card(
+                  margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+                  child: ListTile(
+                    title: Text(_notes[index]),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.edit),
+                          onPressed: () => _editNote(index),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete),
+                          onPressed: () => _deleteNote(index),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
