@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "161329955341",
+    "project_id": "postapp-b1854",
+    "storage_bucket": "postapp-b1854.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:161329955341:android:a12624ecbbbe673a4b4b44",
+        "android_client_info": {
+          "package_name": "com.example.firebase_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBNqcYi63aPnA5i2Zp6TKsU86S5OOYdjE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
